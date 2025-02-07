@@ -1,0 +1,1 @@
+# go-prisma-react

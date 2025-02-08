@@ -46,12 +46,14 @@ func run() error {
 	calculationHandler := handlers.NewCalculationHandler(client)
 	formularHandler := handlers.NewFormularHandler(client)
 	nodeHandler := handlers.NewNodeHandler(client)
+	aiHandler := handlers.NewAIHandler()
 
 	// Mount routes
 	r.Mount("/swagger", swaggerHandler.Routes())
 	r.Mount("/api/calculations", calculationHandler.Routes())
 	r.Mount("/api/formulars", formularHandler.Routes())
 	r.Mount("/api/nodes", nodeHandler.Routes())
+	r.Mount("/api/ai", aiHandler.Routes())
 
 	// Start server
 	fmt.Println("Server running on http://localhost:8080")

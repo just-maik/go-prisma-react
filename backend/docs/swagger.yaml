@@ -1,0 +1,750 @@
+basePath: /api
+definitions:
+  db.CalculationFormularModel:
+    properties:
+      calculation:
+        $ref: '#/definitions/db.CalculationModel'
+      calculationId:
+        type: string
+      createdAt:
+        type: string
+      formular:
+        $ref: '#/definitions/db.FormularModel'
+      formularId:
+        type: string
+      id:
+        type: string
+      next:
+        $ref: '#/definitions/db.CalculationFormularModel'
+      nextId:
+        type: string
+      previous:
+        $ref: '#/definitions/db.CalculationFormularModel'
+      updatedAt:
+        type: string
+    type: object
+  db.CalculationModel:
+    properties:
+      createdAt:
+        type: string
+      formulars:
+        items:
+          $ref: '#/definitions/db.CalculationFormularModel'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  db.FormularModel:
+    properties:
+      calculationFormulars:
+        items:
+          $ref: '#/definitions/db.CalculationFormularModel'
+        type: array
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      nodes:
+        items:
+          $ref: '#/definitions/db.FormularNodeModel'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  db.FormularNodeModel:
+    properties:
+      createdAt:
+        type: string
+      formular:
+        $ref: '#/definitions/db.FormularModel'
+      formularId:
+        type: string
+      id:
+        type: string
+      next:
+        $ref: '#/definitions/db.FormularNodeModel'
+      nextId:
+        type: string
+      node:
+        $ref: '#/definitions/db.NodeModel'
+      nodeId:
+        type: string
+      previous:
+        $ref: '#/definitions/db.FormularNodeModel'
+      updatedAt:
+        type: string
+    type: object
+  db.NodeModel:
+    properties:
+      createdAt:
+        type: string
+      formularNodes:
+        items:
+          $ref: '#/definitions/db.FormularNodeModel'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      nodeData:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  handlers.AddFormularInput:
+    properties:
+      formularId:
+        description: The ID of the formular to add
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      nextId:
+        description: Optional ID of the next formular in sequence
+        example: 123e4567-e89b-12d3-a456-426614174001
+        type: string
+    type: object
+  handlers.AddNodeInput:
+    properties:
+      nextId:
+        description: Optional ID of the next node in sequence
+        example: 123e4567-e89b-12d3-a456-426614174001
+        type: string
+      nodeId:
+        description: The ID of the node to add
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+    type: object
+  handlers.CreateCalculationInput:
+    properties:
+      name:
+        description: The name of the calculation
+        example: My Calculation
+        type: string
+    type: object
+  handlers.CreateFormularInput:
+    properties:
+      name:
+        description: The name of the formular
+        example: My Formular
+        type: string
+    type: object
+  handlers.CreateNodeInput:
+    properties:
+      name:
+        description: The name of the node
+        example: My Node
+        type: string
+      nodeData:
+        description: The data associated with the node
+        example: raw data
+        type: string
+    type: object
+  handlers.ReorderFormularsInput:
+    properties:
+      formularOrder:
+        description: The ordered list of formular IDs
+        example:
+        - '[''123e4567-e89b-12d3-a456-426614174000'''
+        - ' ''123e4567-e89b-12d3-a456-426614174001'']'
+        items:
+          type: string
+        type: array
+    type: object
+  handlers.ReorderNodesInput:
+    properties:
+      nodeOrder:
+        description: The ordered list of node IDs
+        example:
+        - '[''123e4567-e89b-12d3-a456-426614174000'''
+        - ' ''123e4567-e89b-12d3-a456-426614174001'']'
+        items:
+          type: string
+        type: array
+    type: object
+  handlers.UpdateCalculationInput:
+    properties:
+      name:
+        description: The new name of the calculation
+        example: Updated Calculation
+        type: string
+    type: object
+  handlers.UpdateFormularInput:
+    properties:
+      name:
+        description: The new name of the formular
+        example: Updated Formular
+        type: string
+    type: object
+  handlers.UpdateNodeInput:
+    properties:
+      name:
+        description: The new name of the node
+        example: Updated Node
+        type: string
+      nodeData:
+        description: The new data for the node
+        example: updated data
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: API for managing calculations, formulars, and nodes
+  title: Calculation API
+  version: "1.0"
+paths:
+  /calculations:
+    get:
+      consumes:
+      - application/json
+      description: Get all calculations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.CalculationModel'
+            type: array
+      summary: List calculations
+      tags:
+      - calculations
+    post:
+      consumes:
+      - application/json
+      description: Create a new calculation
+      parameters:
+      - description: Calculation to create
+        in: body
+        name: calculation
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateCalculationInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.CalculationModel'
+      summary: Create a calculation
+      tags:
+      - calculations
+  /calculations/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a calculation by ID
+      parameters:
+      - description: Calculation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Calculation not found
+          schema:
+            type: string
+      summary: Delete a calculation
+      tags:
+      - calculations
+    get:
+      consumes:
+      - application/json
+      description: Get calculation by ID
+      parameters:
+      - description: Calculation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.CalculationModel'
+        "404":
+          description: Calculation not found
+          schema:
+            type: string
+      summary: Get a calculation
+      tags:
+      - calculations
+    put:
+      consumes:
+      - application/json
+      description: Update a calculation by ID
+      parameters:
+      - description: Calculation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Calculation updates
+        in: body
+        name: calculation
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateCalculationInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.CalculationModel'
+        "404":
+          description: Calculation not found
+          schema:
+            type: string
+      summary: Update a calculation
+      tags:
+      - calculations
+  /calculations/{id}/formulars:
+    get:
+      consumes:
+      - application/json
+      description: Get all formulars in a calculation's sequence
+      parameters:
+      - description: Calculation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.CalculationFormularModel'
+            type: array
+      summary: List formulars in a calculation
+      tags:
+      - calculations
+    post:
+      consumes:
+      - application/json
+      description: Add a formular to a calculation's sequence
+      parameters:
+      - description: Calculation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Formular to add
+        in: body
+        name: formular
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AddFormularInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.CalculationFormularModel'
+      summary: Add a formular to a calculation
+      tags:
+      - calculations
+  /calculations/{id}/formulars/{formularId}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a formular from a calculation's sequence
+      parameters:
+      - description: Calculation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Formular ID
+        in: path
+        name: formularId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: CalculationFormular not found
+          schema:
+            type: string
+      summary: Remove a formular from a calculation
+      tags:
+      - calculations
+  /calculations/{id}/formulars/reorder:
+    put:
+      consumes:
+      - application/json
+      description: Update the sequence of formulars in a calculation
+      parameters:
+      - description: Calculation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New formular order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ReorderFormularsInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Reorder formulars in a calculation
+      tags:
+      - calculations
+  /formulars:
+    get:
+      consumes:
+      - application/json
+      description: Get all formulars
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.FormularModel'
+            type: array
+      summary: List formulars
+      tags:
+      - formulars
+    post:
+      consumes:
+      - application/json
+      description: Create a new formular
+      parameters:
+      - description: Formular to create
+        in: body
+        name: formular
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateFormularInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.FormularModel'
+      summary: Create a formular
+      tags:
+      - formulars
+  /formulars/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a formular by ID
+      parameters:
+      - description: Formular ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Formular not found
+          schema:
+            type: string
+      summary: Delete a formular
+      tags:
+      - formulars
+    get:
+      consumes:
+      - application/json
+      description: Get formular by ID
+      parameters:
+      - description: Formular ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.FormularModel'
+        "404":
+          description: Formular not found
+          schema:
+            type: string
+      summary: Get a formular
+      tags:
+      - formulars
+    put:
+      consumes:
+      - application/json
+      description: Update a formular by ID
+      parameters:
+      - description: Formular ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Formular updates
+        in: body
+        name: formular
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateFormularInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.FormularModel'
+        "404":
+          description: Formular not found
+          schema:
+            type: string
+      summary: Update a formular
+      tags:
+      - formulars
+  /formulars/{id}/nodes:
+    get:
+      consumes:
+      - application/json
+      description: Get all nodes in a formular's sequence
+      parameters:
+      - description: Formular ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.FormularNodeModel'
+            type: array
+      summary: List nodes in a formular
+      tags:
+      - formulars
+    post:
+      consumes:
+      - application/json
+      description: Add a node to a formular's sequence
+      parameters:
+      - description: Formular ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Node to add
+        in: body
+        name: node
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AddNodeInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.FormularNodeModel'
+      summary: Add a node to a formular
+      tags:
+      - formulars
+  /formulars/{id}/nodes/{nodeId}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a node from a formular's sequence
+      parameters:
+      - description: Formular ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Node ID
+        in: path
+        name: nodeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: FormularNode not found
+          schema:
+            type: string
+      summary: Remove a node from a formular
+      tags:
+      - formulars
+  /formulars/{id}/nodes/reorder:
+    put:
+      consumes:
+      - application/json
+      description: Update the sequence of nodes in a formular
+      parameters:
+      - description: Formular ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New node order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ReorderNodesInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Reorder nodes in a formular
+      tags:
+      - formulars
+  /nodes:
+    get:
+      consumes:
+      - application/json
+      description: Get all nodes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.NodeModel'
+            type: array
+      summary: List nodes
+      tags:
+      - nodes
+    post:
+      consumes:
+      - application/json
+      description: Create a new node
+      parameters:
+      - description: Node to create
+        in: body
+        name: node
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateNodeInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.NodeModel'
+      summary: Create a node
+      tags:
+      - nodes
+  /nodes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a node by ID
+      parameters:
+      - description: Node ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Node not found
+          schema:
+            type: string
+      summary: Delete a node
+      tags:
+      - nodes
+    get:
+      consumes:
+      - application/json
+      description: Get node by ID
+      parameters:
+      - description: Node ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.NodeModel'
+        "404":
+          description: Node not found
+          schema:
+            type: string
+      summary: Get a node
+      tags:
+      - nodes
+    put:
+      consumes:
+      - application/json
+      description: Update a node by ID
+      parameters:
+      - description: Node ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Node updates
+        in: body
+        name: node
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateNodeInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.NodeModel'
+        "404":
+          description: Node not found
+          schema:
+            type: string
+      summary: Update a node
+      tags:
+      - nodes
+swagger: "2.0"

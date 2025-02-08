@@ -1,0 +1,62 @@
+datasource db {
+    // could be postgresql or mysql
+    provider = "sqlite"
+    url      = "file:dev.db"
+}
+
+generator db {
+    provider        = "go run github.com/steebchen/prisma-client-go"
+    previewFeatures = ["prismaSchemaFolder", "relationJoins", "metrics"]
+}
+
+model Calculation {
+    id        String               @id @default(uuid())
+    name      String
+    formulars CalculationFormular[]
+    createdAt DateTime            @default(now())
+    updatedAt DateTime            @updatedAt
+}
+
+model CalculationFormular {
+    id            String               @id @default(uuid())
+    calculation   Calculation          @relation(fields: [calculationId], references: [id])
+    calculationId String
+    formular      Formular            @relation(fields: [formularId], references: [id])
+    formularId    String
+    next          CalculationFormular? @relation("NextFormular", fields: [nextId], references: [id])
+    nextId        String?              @unique
+    previous      CalculationFormular? @relation("NextFormular")
+    createdAt     DateTime            @default(now())
+    updatedAt     DateTime            @updatedAt
+}
+
+model Formular {
+    id                   String                @id @default(uuid())
+    name                 String
+    nodes               FormularNode[]
+    calculationFormulars CalculationFormular[]
+    createdAt           DateTime             @default(now())
+    updatedAt           DateTime             @updatedAt
+}
+
+model FormularNode {
+    id         String        @id @default(uuid())
+    formular   Formular     @relation(fields: [formularId], references: [id])
+    formularId String
+    node       Node         @relation(fields: [nodeId], references: [id])
+    nodeId     String
+    next       FormularNode? @relation("NextNode", fields: [nextId], references: [id])
+    nextId     String?       @unique
+    previous   FormularNode? @relation("NextNode")
+    createdAt  DateTime     @default(now())
+    updatedAt  DateTime     @updatedAt
+}
+
+model Node {
+    id         String         @id @default(uuid())
+    name       String
+    nodeData   String
+    formularNodes FormularNode[]
+    createdAt  DateTime      @default(now())
+    updatedAt  DateTime      @updatedAt
+}
